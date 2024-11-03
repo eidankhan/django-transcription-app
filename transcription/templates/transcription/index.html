@@ -26,17 +26,38 @@
 
     <!-- Main Content -->
     <div class="container my-5">
-        <h1 class="text-center display-5 fw-bold text-primary" style="margin-bottom: 0.3rem;">Transcribe Your Audio</h1>
-        <p class="text-center text-muted" style="margin-top: 0; font-size: 1.1rem;">Quickly convert your audio files to text with WhisperWorks</p>
-        <form id="transcription-form" method="post" enctype="multipart/form-data" class="mt-4 d-flex justify-content-center">
-            {% csrf_token %}
-            <div class="input-group" style="max-width: 700px;">
-                <input type="file" name="audio_file" accept="audio/*" required class="form-control" >
-                <button type="submit" class="btn btn-success">
+        <h1 class="text-center display-5 fw-bold text-primary">Transcribe Your Audio</h1>
+    <p class="text-center text-muted">Quickly convert your audio files to text with WhisperWorks</p>
+
+    <form id="transcription-form" method="post" enctype="multipart/form-data" class="mt-4 d-flex flex-column align-items-center">
+        {% csrf_token %}
+
+        <!-- Form Row for Audio Quality, File Upload, and Submit Button -->
+        <div class="row g-2 justify-content-center align-items-end mb-3" style="max-width: 800px; width: 100%;">
+            <!-- Audio Quality Dropdown -->
+            <div class="col-md-4">
+                <label for="audioQuality" class="form-label">Select Audio Quality:</label>
+                <select id="audioQuality" name="audio_quality" class="form-select" style="min-width: 100%; height: 45px;">
+                    <option value="clear">Clear Voice (Little to No Background Noise)</option>
+                    <option value="noisy">Background Noise (Less Clear Voice)</option>
+                </select>
+            </div>
+
+            <!-- File Upload Field -->
+            <div class="col-md-5">
+                <label for="audioFile" class="form-label">Upload Audio File:</label>
+                <input type="file" id="audioFile" name="audio_file" accept="audio/*" required class="form-control" style="min-width: 100%; height: 45px;">
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100" style="height: 45px; margin-top: 28px;">
                     <i class="material-icons">upload</i> Transcribe
                 </button>
             </div>
-        </form>
+        </div>
+    </form>
+
 
          <!-- Progress Bar -->
         <div id="progress-container" class="mt-4 text-center" style="display: none;">
@@ -67,6 +88,9 @@
             $('#transcription-form').on('submit', function(event) {
                 event.preventDefault(); // Prevent default form submission
     
+                // Hide the transcription result area if it's visible
+                $('#transcription-result').hide();
+                
                 var formData = new FormData(this); // Create FormData object with the form data
     
                 // Show and reset the progress bar
@@ -94,15 +118,12 @@
                     success: function(response) {
                         clearInterval(progressInterval); // Stop the progress simulation
                         $('#progress-bar').css('width', '100%').attr('aria-valuenow', 100).text('100%');
-    
-                        // Display transcription text
-                        $('#transcription-result').show();
-                        $('#transcription-text').text(response.transcription);
-    
-                        // Hide the progress bar after a short delay
-                        setTimeout(function() {
-                            $('#progress-container').fadeOut();
-                        }, 1000);
+
+                        // Hide the progress bar first, then show the transcription result
+                        $('#progress-container').fadeOut(400, function() {
+                            $('#transcription-result').show();
+                            $('#transcription-text').text(response.transcription);
+                        });
                     },
                     error: function(xhr, status, error) {
                         clearInterval(progressInterval); // Stop the progress simulation
