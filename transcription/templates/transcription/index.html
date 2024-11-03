@@ -88,6 +88,9 @@
             $('#transcription-form').on('submit', function(event) {
                 event.preventDefault(); // Prevent default form submission
     
+                // Hide the transcription result area if it's visible
+                $('#transcription-result').hide();
+                
                 var formData = new FormData(this); // Create FormData object with the form data
     
                 // Show and reset the progress bar
@@ -115,15 +118,12 @@
                     success: function(response) {
                         clearInterval(progressInterval); // Stop the progress simulation
                         $('#progress-bar').css('width', '100%').attr('aria-valuenow', 100).text('100%');
-    
-                        // Display transcription text
-                        $('#transcription-result').show();
-                        $('#transcription-text').text(response.transcription);
-    
-                        // Hide the progress bar after a short delay
-                        setTimeout(function() {
-                            $('#progress-container').fadeOut();
-                        }, 1000);
+
+                        // Hide the progress bar first, then show the transcription result
+                        $('#progress-container').fadeOut(400, function() {
+                            $('#transcription-result').show();
+                            $('#transcription-text').text(response.transcription);
+                        });
                     },
                     error: function(xhr, status, error) {
                         clearInterval(progressInterval); // Stop the progress simulation
