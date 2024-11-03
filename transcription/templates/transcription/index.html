@@ -37,6 +37,15 @@
                 </button>
             </div>
         </form>
+
+         <!-- Progress Bar -->
+        <div id="progress-container" class="mt-4 text-center" style="display: none;">
+            <p id="progress-text" class="fw-bold text-primary">Processing your transcription...</p>
+            <div class="progress" style="height: 1.5rem; border-radius: 10px; overflow: hidden;">
+                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%; font-weight: bold; font-size: 1rem;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
+        </div>
+
       
         <!-- Display Transcription Result -->
         <div id="transcription-result" class="mt-4" style="display: none;">
@@ -60,6 +69,19 @@
     
                 var formData = new FormData(this); // Create FormData object with the form data
     
+                // Show and reset the progress bar
+                $('#progress-container').show();
+                $('#progress-bar').css('width', '0%').attr('aria-valuenow', 0).text('0%');
+    
+                // Simulate progress while waiting for the response
+                let progressInterval = setInterval(function() {
+                    let currentProgress = parseInt($('#progress-bar').attr('aria-valuenow'));
+                    if (currentProgress < 90) {  // Cap at 90% until the response comes
+                        currentProgress += 5;
+                        $('#progress-bar').css('width', currentProgress + '%').attr('aria-valuenow', currentProgress).text(currentProgress + '%');
+                    }
+                }, 500);
+    
                 $.ajax({
                     url: '{% url "transcribe" %}',
                     type: 'POST',
@@ -70,14 +92,30 @@
                         'X-CSRFToken': '{{ csrf_token }}' // Add CSRF token header
                     },
                     success: function(response) {
+                        clearInterval(progressInterval); // Stop the progress simulation
+                        $('#progress-bar').css('width', '100%').attr('aria-valuenow', 100).text('100%');
+    
                         // Display transcription text
                         $('#transcription-result').show();
                         $('#transcription-text').text(response.transcription);
+    
+                        // Hide the progress bar after a short delay
+                        setTimeout(function() {
+                            $('#progress-container').fadeOut();
+                        }, 1000);
                     },
                     error: function(xhr, status, error) {
-                        // Handle any errors
+                        clearInterval(progressInterval); // Stop the progress simulation
+                        $('#progress-bar').css('width', '100%').attr('aria-valuenow', 100).addClass('bg-danger').text('Error');
+    
+                        // Handle error display
                         $('#transcription-result').show();
                         $('#transcription-text').text("Error: " + xhr.responseJSON.error);
+    
+                        // Hide the progress bar after a short delay
+                        setTimeout(function() {
+                            $('#progress-container').fadeOut();
+                        }, 2000);
                     }
                 });
             });
