@@ -4,13 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transcription Service</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
 </head>
 <body>
-    <h1>Upload an Audio File for Transcription</h1>
-    <form action="{% url 'transcribe' %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="audio_file" accept="audio/*" required>
-        <button type="submit">Transcribe</button>
-    </form>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">WhisperWorks</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Empty collapse for future links if needed -->
+            </div>
+        </div>
+    </nav>
+
+     <!-- Main Content -->
+     <div class="container my-5">
+        <h1 class="text-center display-4 fw-bold text-primary"  style="margin-bottom: 0.3rem;">Transcribe Your Audio</h1>
+        <p class="text-center text-muted" style="margin-top: 0; font-size: 1.1rem;">Quickly convert your audio files to text with WhisperWorks</p>
+        <form action="{% url 'transcribe' %}" method="post" enctype="multipart/form-data" class="mt-4">
+            {% csrf_token %}
+            <div class="row g-2 align-items-center">
+                <div class="col-md-9">
+                    <input type="file" name="audio_file" accept="audio/*" required class="form-control" style="padding: 10px;">
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="material-icons">upload</i> Transcribe
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+  
 </body>
 </html>
