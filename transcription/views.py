@@ -4,6 +4,9 @@ from django.http import HttpResponse, JsonResponse
 import whisper
 import tempfile
 import os
+from .services import transcription_service
+
+model_name = "tiny"  # Choose from "tiny", "base", "small", "medium", "large", "turbo" etc.
 
 
 # Create your views here.
@@ -21,14 +24,10 @@ def transcribe(request):
                 tmp_file.write(chunk)
             tmp_file_path = tmp_file.name
 
-        # Load Whisper model
-        model = whisper.load_model("base")
-
         # Transcribe the audio file
         try:
-            result = model.transcribe(tmp_file_path)
-            transcription_text = result["text"]
-            return JsonResponse({"transcription": transcription_text})
+            transcription = transcription_service.transcribe_audio_with_model(model_name, tmp_file_path)
+            return JsonResponse({"transcription": transcription})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
         finally:
