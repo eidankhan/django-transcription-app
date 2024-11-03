@@ -4,13 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transcription Service</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
 </head>
 <body>
-    <h1>Upload an Audio File for Transcription</h1>
-    <form action="{% url 'transcribe' %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="audio_file" accept="audio/*" required>
-        <button type="submit">Transcribe</button>
-    </form>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">WhisperWorks</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Additional navbar items can be added here if needed in the future -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <h1 class="text-center display-5 fw-bold text-primary" style="margin-bottom: 0.3rem;">Transcribe Your Audio</h1>
+        <p class="text-center text-muted" style="margin-top: 0; font-size: 1.1rem;">Quickly convert your audio files to text with WhisperWorks</p>
+        <form id="transcription-form" method="post" enctype="multipart/form-data" class="mt-4 d-flex justify-content-center">
+            {% csrf_token %}
+            <div class="input-group" style="max-width: 700px;">
+                <input type="file" name="audio_file" accept="audio/*" required class="form-control" >
+                <button type="submit" class="btn btn-success">
+                    <i class="material-icons">upload</i> Transcribe
+                </button>
+            </div>
+        </form>
+
+         <!-- Progress Bar -->
+        <div id="progress-container" class="mt-4 text-center" style="display: none;">
+            <p id="progress-text" class="fw-bold text-primary">Processing your transcription...</p>
+            <div class="progress" style="height: 1.5rem; border-radius: 10px; overflow: hidden;">
+                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%; font-weight: bold; font-size: 1rem;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
+        </div>
+
+      
+        <!-- Display Transcription Result -->
+        <div id="transcription-result" class="mt-4" style="display: none;">
+            <h5 class="fw-bold text-primary">Transcription</h5>
+            <div id="transcription-text" style="max-height: 350px; overflow-y: auto; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f8f9fa;">
+                <p id="transcription-text"></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#transcription-form').on('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+    
+                var formData = new FormData(this); // Create FormData object with the form data
+    
+                // Show and reset the progress bar
+                $('#progress-container').show();
+                $('#progress-bar').css('width', '0%').attr('aria-valuenow', 0).text('0%');
+    
+                // Simulate progress while waiting for the response
+                let progressInterval = setInterval(function() {
+                    let currentProgress = parseInt($('#progress-bar').attr('aria-valuenow'));
+                    if (currentProgress < 90) {  // Cap at 90% until the response comes
+                        currentProgress += 5;
+                        $('#progress-bar').css('width', currentProgress + '%').attr('aria-valuenow', currentProgress).text(currentProgress + '%');
+                    }
+                }, 500);
+    
+                $.ajax({
+                    url: '{% url "transcribe" %}',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}' // Add CSRF token header
+                    },
+                    success: function(response) {
+                        clearInterval(progressInterval); // Stop the progress simulation
+                        $('#progress-bar').css('width', '100%').attr('aria-valuenow', 100).text('100%');
+    
+                        // Display transcription text
+                        $('#transcription-result').show();
+                        $('#transcription-text').text(response.transcription);
+    
+                        // Hide the progress bar after a short delay
+                        setTimeout(function() {
+                            $('#progress-container').fadeOut();
+                        }, 1000);
+                    },
+                    error: function(xhr, status, error) {
+                        clearInterval(progressInterval); // Stop the progress simulation
+                        $('#progress-bar').css('width', '100%').attr('aria-valuenow', 100).addClass('bg-danger').text('Error');
+    
+                        // Handle error display
+                        $('#transcription-result').show();
+                        $('#transcription-text').text("Error: " + xhr.responseJSON.error);
+    
+                        // Hide the progress bar after a short delay
+                        setTimeout(function() {
+                            $('#progress-container').fadeOut();
+                        }, 2000);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
