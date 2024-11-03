@@ -9,6 +9,11 @@ This is a Django-based web application that provides audio transcription service
 - **Real-Time Audio Playback with Word Highlighting**: As the audio plays, each word in the transcription is highlighted in sync, helping users evaluate transcription accuracy.
 - **Responsive UI**: Clean and responsive user interface with Bootstrap and Materialize, providing an intuitive user experience.
 
+## App UI So Far
+
+![App Screenshot](assets/ui-screenshot.png)
+
+
 ## Planned Features
 
 - **Summarization**: Add a feature to generate summaries of transcribed text.
