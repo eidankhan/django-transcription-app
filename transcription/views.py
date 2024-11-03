@@ -6,9 +6,6 @@ import tempfile
 import os
 from .services import transcription_service
 
-model_name = "tiny"  # Choose from "tiny", "base", "small", "medium", "large", "turbo" etc.
-
-
 # Create your views here.
 
 def index(request):
@@ -17,7 +14,11 @@ def transcribe(request):
     # Check if the request is AJAX by looking at the HTTP header
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         audio_file = request.FILES['audio_file']
+        audio_quality = request.POST.get('audio_quality', 'clear')  # Default to "clear" if not provided
 
+        # Choose model based on audio quality
+        model_name = "tiny" if audio_quality == "clear" else "small"
+       
         # Save the uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             for chunk in audio_file.chunks():
