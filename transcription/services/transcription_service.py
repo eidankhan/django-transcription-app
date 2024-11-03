@@ -16,11 +16,24 @@ model_dict = {
     "turbo": whisper.load_model("turbo")         # Multilingual optimized for inference speed
 }
 
+# def transcribe_audio_with_model(model_name, audio_path):
+#     """Transcribe the audio file using the specified model."""
+#     if model_name not in model_dict:
+#         raise ValueError(f"Model '{model_name}' is not available. Choose from: {list(model_dict.keys())}")
+
+#     model = model_dict[model_name]  # Retrieve the chosen model from the dictionary
+#     result = model.transcribe(audio_path)
+#     return result["text"]
+
 def transcribe_audio_with_model(model_name, audio_path):
-    """Transcribe the audio file using the specified model."""
+    """Transcribe the audio file using the specified model, including timestamps."""
     if model_name not in model_dict:
         raise ValueError(f"Model '{model_name}' is not available. Choose from: {list(model_dict.keys())}")
 
     model = model_dict[model_name]  # Retrieve the chosen model from the dictionary
-    result = model.transcribe(audio_path)
-    return result["text"]
+    result = model.transcribe(audio_path, word_timestamps=True)  # Enable word timestamps
+
+    # Extract segments containing both text and timestamps
+    segments = [{"text": segment["text"], "start": segment["start"], "end": segment["end"]} for segment in result["segments"]]
+    
+    return segments  # Return segments with timestamps
