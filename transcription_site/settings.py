@@ -27,9 +27,13 @@ DEBUG = True
 
 # ALLOWED_HOSTS = []
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '22d4-2a02-c7c-62ef-9500-3846-779d-cfae-7f63.ngrok-free.app']
+ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['https://22d4-2a02-c7c-62ef-9500-3846-779d-cfae-7f63.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app',  # Allow ngrok for testing (wildcard for subdomains)
+    'http://localhost:8000',     # Local development server
+    'http://127.0.0.1:8000'      # Localhost
+]
 
 
 # Application definition
