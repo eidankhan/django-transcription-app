@@ -1,0 +1,3 @@
+Django==3.2.20         # Adjust the version if you're using a different one
+gunicorn==20.1.0       # WSGI HTTP Server for UNIX, recommended for deployments
+git+https://github.com/openai/whisper.git  # Whisper installed from GitHub
